@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/imdat99/user_service_go/pkg/database/ent"
+	"app/pkg/database/ent"
 )
 
 // The ActivityLogFunc type is an adapter to allow the use of ordinary

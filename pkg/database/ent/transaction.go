@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/imdat99/user_service_go/pkg/database/ent/paymentmethod"
-	"github.com/imdat99/user_service_go/pkg/database/ent/transaction"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/paymentmethod"
+	"app/pkg/database/ent/transaction"
+	"app/pkg/database/ent/user"
 )
 
 // Transaction is the model entity for the Transaction schema.

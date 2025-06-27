@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/imdat99/user_service_go/pkg/database/ent/paymentmethod"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/paymentmethod"
+	"app/pkg/database/ent/user"
 )
 
 // PaymentMethod is the model entity for the PaymentMethod schema.

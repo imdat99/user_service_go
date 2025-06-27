@@ -11,9 +11,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/paymentmethod"
-	"github.com/imdat99/user_service_go/pkg/database/ent/transaction"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/paymentmethod"
+	"app/pkg/database/ent/transaction"
+	"app/pkg/database/ent/user"
 )
 
 // TransactionCreate is the builder for creating a Transaction entity.

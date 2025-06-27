@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/imdat99/user_service_go/pkg/database/ent/privacysetting"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/privacysetting"
+	"app/pkg/database/ent/user"
 )
 
 // PrivacySetting is the model entity for the PrivacySetting schema.

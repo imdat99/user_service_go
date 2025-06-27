@@ -11,8 +11,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/activitylog"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/activitylog"
+	"app/pkg/database/ent/user"
 )
 
 // ActivityLogCreate is the builder for creating a ActivityLog entity.

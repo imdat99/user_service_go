@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/imdat99/user_service_go/pkg/database/ent"
+	"app/pkg/database/ent"
 	// required by schema hooks.
-	_ "github.com/imdat99/user_service_go/pkg/database/ent/runtime"
+	_ "app/pkg/database/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/imdat99/user_service_go/pkg/database/ent/migrate"
+	"app/pkg/database/ent/migrate"
 )
 
 type (

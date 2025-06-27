@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/apikey"
-	"github.com/imdat99/user_service_go/pkg/database/ent/predicate"
+	"app/pkg/database/ent/apikey"
+	"app/pkg/database/ent/predicate"
 )
 
 // ApiKeyDelete is the builder for deleting a ApiKey entity.

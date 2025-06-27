@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/predicate"
-	"github.com/imdat99/user_service_go/pkg/database/ent/privacysetting"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/privacysetting"
+	"app/pkg/database/ent/user"
 )
 
 // PrivacySettingUpdate is the builder for updating PrivacySetting entities.

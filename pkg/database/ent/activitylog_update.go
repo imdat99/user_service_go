@@ -13,9 +13,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/activitylog"
-	"github.com/imdat99/user_service_go/pkg/database/ent/predicate"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/activitylog"
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/user"
 )
 
 // ActivityLogUpdate is the builder for updating ActivityLog entities.

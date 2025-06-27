@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
-	"github.com/imdat99/user_service_go/pkg/database/ent/userprofile"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/userprofile"
 )
 
 // UserProfile is the model entity for the UserProfile schema.

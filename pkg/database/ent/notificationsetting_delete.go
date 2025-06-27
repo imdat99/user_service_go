@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/notificationsetting"
-	"github.com/imdat99/user_service_go/pkg/database/ent/predicate"
+	"app/pkg/database/ent/notificationsetting"
+	"app/pkg/database/ent/predicate"
 )
 
 // NotificationSettingDelete is the builder for deleting a NotificationSetting entity.

@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user2fa"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/user2fa"
 )
 
 // User2fa is the model entity for the User2fa schema.

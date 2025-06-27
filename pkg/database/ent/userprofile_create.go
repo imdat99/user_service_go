@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
-	"github.com/imdat99/user_service_go/pkg/database/ent/userprofile"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/userprofile"
 )
 
 // UserProfileCreate is the builder for creating a UserProfile entity.

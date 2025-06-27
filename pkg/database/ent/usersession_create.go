@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
-	"github.com/imdat99/user_service_go/pkg/database/ent/usersession"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/usersession"
 )
 
 // UserSessionCreate is the builder for creating a UserSession entity.

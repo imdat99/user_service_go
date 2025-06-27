@@ -13,9 +13,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/predicate"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user2fa"
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/user2fa"
 )
 
 // User2faUpdate is the builder for updating User2fa entities.

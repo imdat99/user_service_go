@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/imdat99/user_service_go/pkg/database/ent/predicate"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
-	"github.com/imdat99/user_service_go/pkg/database/ent/usersession"
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/usersession"
 )
 
 // UserSessionUpdate is the builder for updating UserSession entities.

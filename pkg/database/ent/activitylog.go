@@ -10,8 +10,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/imdat99/user_service_go/pkg/database/ent/activitylog"
-	"github.com/imdat99/user_service_go/pkg/database/ent/user"
+	"app/pkg/database/ent/activitylog"
+	"app/pkg/database/ent/user"
 )
 
 // ActivityLog is the model entity for the ActivityLog schema.
