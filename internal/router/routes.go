@@ -9,7 +9,8 @@ import (
 )
 
 func SetupRoutes(app *fiber.App, db *ent.Client, ctx context.Context) {
-	v1 := app.Group("/v1")
+	api := app.Group("/api")
+	v1 := api.Group("/v1")
 	healthCheckService := services.NewHealthCheckService(db, &ctx)
 	HealthCheckRoutes(v1, healthCheckService)
 }
