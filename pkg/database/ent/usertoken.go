@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/usertoken"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/usertoken"
 )
 
 // UserToken is the model entity for the UserToken schema.

@@ -11,10 +11,6 @@ import (
 
 	"app/pkg/database/ent/migrate"
 
-	"entgo.io/ent"
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"app/pkg/database/ent/activitylog"
 	"app/pkg/database/ent/apikey"
 	"app/pkg/database/ent/notificationsetting"
@@ -26,6 +22,11 @@ import (
 	"app/pkg/database/ent/userprofile"
 	"app/pkg/database/ent/usersession"
 	"app/pkg/database/ent/usertoken"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -415,7 +416,8 @@ func (c *ActivityLogClient) QueryUser(al *ActivityLog) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *ActivityLogClient) Hooks() []Hook {
-	return c.hooks.ActivityLog
+	hooks := c.hooks.ActivityLog
+	return append(hooks[:len(hooks):len(hooks)], activitylog.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -564,7 +566,8 @@ func (c *ApiKeyClient) QueryUser(ak *ApiKey) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *ApiKeyClient) Hooks() []Hook {
-	return c.hooks.ApiKey
+	hooks := c.hooks.ApiKey
+	return append(hooks[:len(hooks):len(hooks)], apikey.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -713,7 +716,8 @@ func (c *NotificationSettingClient) QueryUser(ns *NotificationSetting) *UserQuer
 
 // Hooks returns the client hooks.
 func (c *NotificationSettingClient) Hooks() []Hook {
-	return c.hooks.NotificationSetting
+	hooks := c.hooks.NotificationSetting
+	return append(hooks[:len(hooks):len(hooks)], notificationsetting.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -878,7 +882,8 @@ func (c *PaymentMethodClient) QueryTransactions(pm *PaymentMethod) *TransactionQ
 
 // Hooks returns the client hooks.
 func (c *PaymentMethodClient) Hooks() []Hook {
-	return c.hooks.PaymentMethod
+	hooks := c.hooks.PaymentMethod
+	return append(hooks[:len(hooks):len(hooks)], paymentmethod.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1027,7 +1032,8 @@ func (c *PrivacySettingClient) QueryUser(ps *PrivacySetting) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *PrivacySettingClient) Hooks() []Hook {
-	return c.hooks.PrivacySetting
+	hooks := c.hooks.PrivacySetting
+	return append(hooks[:len(hooks):len(hooks)], privacysetting.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1192,7 +1198,8 @@ func (c *TransactionClient) QueryPaymentMethod(t *Transaction) *PaymentMethodQue
 
 // Hooks returns the client hooks.
 func (c *TransactionClient) Hooks() []Hook {
-	return c.hooks.Transaction
+	hooks := c.hooks.Transaction
+	return append(hooks[:len(hooks):len(hooks)], transaction.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1419,6 +1426,22 @@ func (c *UserClient) QueryTransactions(u *User) *TransactionQuery {
 	return query
 }
 
+// QueryUser2fa queries the user_2fa edge of a User.
+func (c *UserClient) QueryUser2fa(u *User) *User2faQuery {
+	query := (&User2faClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(user2fa.Table, user2fa.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.User2faTable, user.User2faColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryUserProfile queries the user_profile edge of a User.
 func (c *UserClient) QueryUserProfile(u *User) *UserProfileQuery {
 	query := (&UserProfileClient{config: c.config}).Query()
@@ -1467,25 +1490,10 @@ func (c *UserClient) QueryUserTokens(u *User) *UserTokenQuery {
 	return query
 }
 
-// QueryUser2fa queries the user_2fa edge of a User.
-func (c *UserClient) QueryUser2fa(u *User) *User2faQuery {
-	query := (&User2faClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(user2fa.Table, user2fa.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.User2faTable, user.User2faColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
+	hooks := c.hooks.User
+	return append(hooks[:len(hooks):len(hooks)], user.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1634,7 +1642,8 @@ func (c *User2faClient) QueryUser(u *User2fa) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *User2faClient) Hooks() []Hook {
-	return c.hooks.User2fa
+	hooks := c.hooks.User2fa
+	return append(hooks[:len(hooks):len(hooks)], user2fa.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1783,7 +1792,8 @@ func (c *UserProfileClient) QueryUser(up *UserProfile) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *UserProfileClient) Hooks() []Hook {
-	return c.hooks.UserProfile
+	hooks := c.hooks.UserProfile
+	return append(hooks[:len(hooks):len(hooks)], userprofile.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1932,7 +1942,8 @@ func (c *UserSessionClient) QueryUser(us *UserSession) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *UserSessionClient) Hooks() []Hook {
-	return c.hooks.UserSession
+	hooks := c.hooks.UserSession
+	return append(hooks[:len(hooks):len(hooks)], usersession.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -2113,7 +2124,8 @@ func (c *UserTokenClient) QueryParentUserToken(ut *UserToken) *UserTokenQuery {
 
 // Hooks returns the client hooks.
 func (c *UserTokenClient) Hooks() []Hook {
-	return c.hooks.UserToken
+	hooks := c.hooks.UserToken
+	return append(hooks[:len(hooks):len(hooks)], usertoken.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.

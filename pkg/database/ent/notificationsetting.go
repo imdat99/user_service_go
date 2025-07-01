@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/notificationsetting"
+	"app/pkg/database/ent/user"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/notificationsetting"
-	"app/pkg/database/ent/user"
 )
 
 // NotificationSetting is the model entity for the NotificationSetting schema.

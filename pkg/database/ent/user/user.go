@@ -5,6 +5,7 @@ package user
 import (
 	"fmt"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -56,14 +57,14 @@ const (
 	EdgePrivacySetting = "privacy_setting"
 	// EdgeTransactions holds the string denoting the transactions edge name in mutations.
 	EdgeTransactions = "transactions"
+	// EdgeUser2fa holds the string denoting the user_2fa edge name in mutations.
+	EdgeUser2fa = "user_2fa"
 	// EdgeUserProfile holds the string denoting the user_profile edge name in mutations.
 	EdgeUserProfile = "user_profile"
 	// EdgeUserSessions holds the string denoting the user_sessions edge name in mutations.
 	EdgeUserSessions = "user_sessions"
 	// EdgeUserTokens holds the string denoting the user_tokens edge name in mutations.
 	EdgeUserTokens = "user_tokens"
-	// EdgeUser2fa holds the string denoting the user_2fa edge name in mutations.
-	EdgeUser2fa = "user_2fa"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// ActivityLogsTable is the table that holds the activity_logs relation/edge.
@@ -108,6 +109,13 @@ const (
 	TransactionsInverseTable = "transactions"
 	// TransactionsColumn is the table column denoting the transactions relation/edge.
 	TransactionsColumn = "user_id"
+	// User2faTable is the table that holds the user_2fa relation/edge.
+	User2faTable = "user_2fa"
+	// User2faInverseTable is the table name for the User2fa entity.
+	// It exists in this package in order to avoid circular dependency with the "user2fa" package.
+	User2faInverseTable = "user_2fa"
+	// User2faColumn is the table column denoting the user_2fa relation/edge.
+	User2faColumn = "user_id"
 	// UserProfileTable is the table that holds the user_profile relation/edge.
 	UserProfileTable = "user_profiles"
 	// UserProfileInverseTable is the table name for the UserProfile entity.
@@ -129,13 +137,6 @@ const (
 	UserTokensInverseTable = "user_tokens"
 	// UserTokensColumn is the table column denoting the user_tokens relation/edge.
 	UserTokensColumn = "user_id"
-	// User2faTable is the table that holds the user_2fa relation/edge.
-	User2faTable = "user_2fa"
-	// User2faInverseTable is the table name for the User2fa entity.
-	// It exists in this package in order to avoid circular dependency with the "user2fa" package.
-	User2faInverseTable = "user_2fa"
-	// User2faColumn is the table column denoting the user_2fa relation/edge.
-	User2faColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -167,6 +168,15 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "app/pkg/database/ent/runtime"
+var (
+	Hooks [1]ent.Hook
+)
 
 // AccountStatus defines the type for the "account_status" enum field.
 type AccountStatus string
@@ -346,6 +356,13 @@ func ByTransactions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByUser2faField orders the results by user_2fa field.
+func ByUser2faField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUser2faStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByUserProfileField orders the results by user_profile field.
 func ByUserProfileField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -378,13 +395,6 @@ func ByUserTokensCount(opts ...sql.OrderTermOption) OrderOption {
 func ByUserTokens(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newUserTokensStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByUser2faField orders the results by user_2fa field.
-func ByUser2faField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUser2faStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newActivityLogsStep() *sqlgraph.Step {
@@ -429,6 +439,13 @@ func newTransactionsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, TransactionsTable, TransactionsColumn),
 	)
 }
+func newUser2faStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(User2faInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, User2faTable, User2faColumn),
+	)
+}
 func newUserProfileStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -448,12 +465,5 @@ func newUserTokensStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UserTokensInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UserTokensTable, UserTokensColumn),
-	)
-}
-func newUser2faStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(User2faInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, User2faTable, User2faColumn),
 	)
 }

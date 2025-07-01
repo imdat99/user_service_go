@@ -1,14 +1,14 @@
 package router
 
 import (
-	"app/internal/controllers"
+	"app/internal/handler"
 	"app/internal/services"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func HealthCheckRoutes(app fiber.Router, h services.HealthCheckService) {
-	healthCheckController := controllers.NewHealthCheckController(h)
+	healthCheckController := handler.NewHealthCheckHandler(h)
 
 	healthCheck := app.Group("/health-check")
 	healthCheck.Get("/", healthCheckController.Check)

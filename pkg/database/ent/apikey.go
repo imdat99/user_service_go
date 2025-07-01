@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"app/pkg/database/ent/apikey"
+	"app/pkg/database/ent/user"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -10,8 +12,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/apikey"
-	"app/pkg/database/ent/user"
 )
 
 // ApiKey is the model entity for the ApiKey schema.

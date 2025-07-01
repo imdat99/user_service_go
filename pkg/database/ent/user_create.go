@@ -3,13 +3,6 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"time"
-
-	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
 	"app/pkg/database/ent/activitylog"
 	"app/pkg/database/ent/apikey"
 	"app/pkg/database/ent/notificationsetting"
@@ -21,6 +14,13 @@ import (
 	"app/pkg/database/ent/userprofile"
 	"app/pkg/database/ent/usersession"
 	"app/pkg/database/ent/usertoken"
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -312,6 +312,25 @@ func (uc *UserCreate) AddTransactions(t ...*Transaction) *UserCreate {
 	return uc.AddTransactionIDs(ids...)
 }
 
+// SetUser2faID sets the "user_2fa" edge to the User2fa entity by ID.
+func (uc *UserCreate) SetUser2faID(id string) *UserCreate {
+	uc.mutation.SetUser2faID(id)
+	return uc
+}
+
+// SetNillableUser2faID sets the "user_2fa" edge to the User2fa entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableUser2faID(id *string) *UserCreate {
+	if id != nil {
+		uc = uc.SetUser2faID(*id)
+	}
+	return uc
+}
+
+// SetUser2fa sets the "user_2fa" edge to the User2fa entity.
+func (uc *UserCreate) SetUser2fa(u *User2fa) *UserCreate {
+	return uc.SetUser2faID(u.ID)
+}
+
 // SetUserProfileID sets the "user_profile" edge to the UserProfile entity by ID.
 func (uc *UserCreate) SetUserProfileID(id string) *UserCreate {
 	uc.mutation.SetUserProfileID(id)
@@ -359,25 +378,6 @@ func (uc *UserCreate) AddUserTokens(u ...*UserToken) *UserCreate {
 		ids[i] = u[i].ID
 	}
 	return uc.AddUserTokenIDs(ids...)
-}
-
-// SetUser2faID sets the "user_2fa" edge to the User2fa entity by ID.
-func (uc *UserCreate) SetUser2faID(id string) *UserCreate {
-	uc.mutation.SetUser2faID(id)
-	return uc
-}
-
-// SetNillableUser2faID sets the "user_2fa" edge to the User2fa entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableUser2faID(id *string) *UserCreate {
-	if id != nil {
-		uc = uc.SetUser2faID(*id)
-	}
-	return uc
-}
-
-// SetUser2fa sets the "user_2fa" edge to the User2fa entity.
-func (uc *UserCreate) SetUser2fa(u *User2fa) *UserCreate {
-	return uc.SetUser2faID(u.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -622,6 +622,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := uc.mutation.User2faIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.User2faTable,
+			Columns: []string{user.User2faColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := uc.mutation.UserProfileIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -663,22 +679,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usertoken.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := uc.mutation.User2faIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.User2faTable,
-			Columns: []string{user.User2faColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

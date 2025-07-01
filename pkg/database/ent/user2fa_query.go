@@ -3,6 +3,9 @@
 package ent
 
 import (
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/user2fa"
 	"context"
 	"fmt"
 	"math"
@@ -11,9 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/predicate"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/user2fa"
 )
 
 // User2faQuery is the builder for querying User2fa entities.

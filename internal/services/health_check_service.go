@@ -11,7 +11,7 @@ import (
 )
 
 type HealthCheckService interface {
-	GormCheck() error
+	DBcheck() error
 	MemoryHeapCheck() error
 }
 
@@ -29,7 +29,7 @@ func NewHealthCheckService(db *ent.Client, ctx *context.Context) HealthCheckServ
 	}
 }
 
-func (s *healthCheckService) GormCheck() error {
+func (s *healthCheckService) DBcheck() error {
 	sqlDB, errDB := s.DB.Tx(*s.ctx) // Get the underlying SQL database connection from the ent.Client
 	if errDB != nil {
 		s.Log.Errorf("failed to access the database connection pool: %v", errDB)

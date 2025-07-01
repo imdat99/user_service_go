@@ -3,15 +3,6 @@
 package ent
 
 import (
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"sync"
-	"time"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
 	"app/pkg/database/ent/activitylog"
 	"app/pkg/database/ent/apikey"
 	"app/pkg/database/ent/notificationsetting"
@@ -24,6 +15,15 @@ import (
 	"app/pkg/database/ent/userprofile"
 	"app/pkg/database/ent/usersession"
 	"app/pkg/database/ent/usertoken"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"sync"
+	"time"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 )
 
 const (
@@ -7251,6 +7251,8 @@ type UserMutation struct {
 	transactions                map[string]struct{}
 	removedtransactions         map[string]struct{}
 	clearedtransactions         bool
+	user_2fa                    *string
+	cleareduser_2fa             bool
 	user_profile                *string
 	cleareduser_profile         bool
 	user_sessions               map[string]struct{}
@@ -7259,8 +7261,6 @@ type UserMutation struct {
 	user_tokens                 map[string]struct{}
 	removeduser_tokens          map[string]struct{}
 	cleareduser_tokens          bool
-	user_2fa                    *string
-	cleareduser_2fa             bool
 	done                        bool
 	oldValue                    func(context.Context) (*User, error)
 	predicates                  []predicate.User
@@ -8347,6 +8347,45 @@ func (m *UserMutation) ResetTransactions() {
 	m.removedtransactions = nil
 }
 
+// SetUser2faID sets the "user_2fa" edge to the User2fa entity by id.
+func (m *UserMutation) SetUser2faID(id string) {
+	m.user_2fa = &id
+}
+
+// ClearUser2fa clears the "user_2fa" edge to the User2fa entity.
+func (m *UserMutation) ClearUser2fa() {
+	m.cleareduser_2fa = true
+}
+
+// User2faCleared reports if the "user_2fa" edge to the User2fa entity was cleared.
+func (m *UserMutation) User2faCleared() bool {
+	return m.cleareduser_2fa
+}
+
+// User2faID returns the "user_2fa" edge ID in the mutation.
+func (m *UserMutation) User2faID() (id string, exists bool) {
+	if m.user_2fa != nil {
+		return *m.user_2fa, true
+	}
+	return
+}
+
+// User2faIDs returns the "user_2fa" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// User2faID instead. It exists only for internal usage by the builders.
+func (m *UserMutation) User2faIDs() (ids []string) {
+	if id := m.user_2fa; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser2fa resets all changes to the "user_2fa" edge.
+func (m *UserMutation) ResetUser2fa() {
+	m.user_2fa = nil
+	m.cleareduser_2fa = false
+}
+
 // SetUserProfileID sets the "user_profile" edge to the UserProfile entity by id.
 func (m *UserMutation) SetUserProfileID(id string) {
 	m.user_profile = &id
@@ -8492,45 +8531,6 @@ func (m *UserMutation) ResetUserTokens() {
 	m.user_tokens = nil
 	m.cleareduser_tokens = false
 	m.removeduser_tokens = nil
-}
-
-// SetUser2faID sets the "user_2fa" edge to the User2fa entity by id.
-func (m *UserMutation) SetUser2faID(id string) {
-	m.user_2fa = &id
-}
-
-// ClearUser2fa clears the "user_2fa" edge to the User2fa entity.
-func (m *UserMutation) ClearUser2fa() {
-	m.cleareduser_2fa = true
-}
-
-// User2faCleared reports if the "user_2fa" edge to the User2fa entity was cleared.
-func (m *UserMutation) User2faCleared() bool {
-	return m.cleareduser_2fa
-}
-
-// User2faID returns the "user_2fa" edge ID in the mutation.
-func (m *UserMutation) User2faID() (id string, exists bool) {
-	if m.user_2fa != nil {
-		return *m.user_2fa, true
-	}
-	return
-}
-
-// User2faIDs returns the "user_2fa" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// User2faID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) User2faIDs() (ids []string) {
-	if id := m.user_2fa; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetUser2fa resets all changes to the "user_2fa" edge.
-func (m *UserMutation) ResetUser2fa() {
-	m.user_2fa = nil
-	m.cleareduser_2fa = false
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -8992,6 +8992,9 @@ func (m *UserMutation) AddedEdges() []string {
 	if m.transactions != nil {
 		edges = append(edges, user.EdgeTransactions)
 	}
+	if m.user_2fa != nil {
+		edges = append(edges, user.EdgeUser2fa)
+	}
 	if m.user_profile != nil {
 		edges = append(edges, user.EdgeUserProfile)
 	}
@@ -9000,9 +9003,6 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.user_tokens != nil {
 		edges = append(edges, user.EdgeUserTokens)
-	}
-	if m.user_2fa != nil {
-		edges = append(edges, user.EdgeUser2fa)
 	}
 	return edges
 }
@@ -9043,6 +9043,10 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeUser2fa:
+		if id := m.user_2fa; id != nil {
+			return []ent.Value{*id}
+		}
 	case user.EdgeUserProfile:
 		if id := m.user_profile; id != nil {
 			return []ent.Value{*id}
@@ -9059,10 +9063,6 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case user.EdgeUser2fa:
-		if id := m.user_2fa; id != nil {
-			return []ent.Value{*id}
-		}
 	}
 	return nil
 }
@@ -9156,6 +9156,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	if m.clearedtransactions {
 		edges = append(edges, user.EdgeTransactions)
 	}
+	if m.cleareduser_2fa {
+		edges = append(edges, user.EdgeUser2fa)
+	}
 	if m.cleareduser_profile {
 		edges = append(edges, user.EdgeUserProfile)
 	}
@@ -9164,9 +9167,6 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.cleareduser_tokens {
 		edges = append(edges, user.EdgeUserTokens)
-	}
-	if m.cleareduser_2fa {
-		edges = append(edges, user.EdgeUser2fa)
 	}
 	return edges
 }
@@ -9187,14 +9187,14 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedprivacy_setting
 	case user.EdgeTransactions:
 		return m.clearedtransactions
+	case user.EdgeUser2fa:
+		return m.cleareduser_2fa
 	case user.EdgeUserProfile:
 		return m.cleareduser_profile
 	case user.EdgeUserSessions:
 		return m.cleareduser_sessions
 	case user.EdgeUserTokens:
 		return m.cleareduser_tokens
-	case user.EdgeUser2fa:
-		return m.cleareduser_2fa
 	}
 	return false
 }
@@ -9209,11 +9209,11 @@ func (m *UserMutation) ClearEdge(name string) error {
 	case user.EdgePrivacySetting:
 		m.ClearPrivacySetting()
 		return nil
-	case user.EdgeUserProfile:
-		m.ClearUserProfile()
-		return nil
 	case user.EdgeUser2fa:
 		m.ClearUser2fa()
+		return nil
+	case user.EdgeUserProfile:
+		m.ClearUserProfile()
 		return nil
 	}
 	return fmt.Errorf("unknown User unique edge %s", name)
@@ -9241,6 +9241,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 	case user.EdgeTransactions:
 		m.ResetTransactions()
 		return nil
+	case user.EdgeUser2fa:
+		m.ResetUser2fa()
+		return nil
 	case user.EdgeUserProfile:
 		m.ResetUserProfile()
 		return nil
@@ -9249,9 +9252,6 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgeUserTokens:
 		m.ResetUserTokens()
-		return nil
-	case user.EdgeUser2fa:
-		m.ResetUser2fa()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

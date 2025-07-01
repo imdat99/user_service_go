@@ -3,6 +3,9 @@
 package ent
 
 import (
+	"app/pkg/database/ent/paymentmethod"
+	"app/pkg/database/ent/transaction"
+	"app/pkg/database/ent/user"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -10,9 +13,6 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/paymentmethod"
-	"app/pkg/database/ent/transaction"
-	"app/pkg/database/ent/user"
 )
 
 // Transaction is the model entity for the Transaction schema.

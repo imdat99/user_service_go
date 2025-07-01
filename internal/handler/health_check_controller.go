@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"app/internal/responses"
@@ -7,17 +7,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type HealthCheckController struct {
+type HealthCheckHandler struct {
 	HealthCheckService services.HealthCheckService
 }
 
-func NewHealthCheckController(healthCheckService services.HealthCheckService) *HealthCheckController {
-	return &HealthCheckController{
+func NewHealthCheckHandler(healthCheckService services.HealthCheckService) *HealthCheckHandler {
+	return &HealthCheckHandler{
 		HealthCheckService: healthCheckService,
 	}
 }
 
-func (h *HealthCheckController) addServiceStatus(
+func (h *HealthCheckHandler) addServiceStatus(
 	serviceList *[]responses.HealthCheck, name string, isUp bool, message *string,
 ) {
 	status := "Up"
@@ -42,12 +42,12 @@ func (h *HealthCheckController) addServiceStatus(
 // @Success 200 {object} example.HealthCheckResponse
 // @Failure 500 {object} example.HealthCheckResponseError
 // @Router /health-check [get]
-func (h *HealthCheckController) Check(c *fiber.Ctx) error {
+func (h *HealthCheckHandler) Check(c *fiber.Ctx) error {
 	isHealthy := true
 	var serviceList []responses.HealthCheck
 
 	// Check the database connection
-	if err := h.HealthCheckService.GormCheck(); err != nil {
+	if err := h.HealthCheckService.DBcheck(); err != nil {
 		isHealthy = false
 		errMsg := err.Error()
 		h.addServiceStatus(&serviceList, "Postgre", false, &errMsg)

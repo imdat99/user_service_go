@@ -5,6 +5,7 @@ package usertoken
 import (
 	"fmt"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -92,6 +93,15 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "app/pkg/database/ent/runtime"
+var (
+	Hooks [1]ent.Hook
+)
 
 // TokenType defines the type for the "token_type" enum field.
 type TokenType string

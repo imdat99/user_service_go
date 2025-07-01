@@ -3,17 +3,17 @@
 package ent
 
 import (
+	"app/pkg/database/ent/notificationsetting"
+	"app/pkg/database/ent/privacysetting"
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/user2fa"
+	"app/pkg/database/ent/userprofile"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/notificationsetting"
-	"app/pkg/database/ent/privacysetting"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/user2fa"
-	"app/pkg/database/ent/userprofile"
 )
 
 // User is the model entity for the User schema.
@@ -71,14 +71,14 @@ type UserEdges struct {
 	PrivacySetting *PrivacySetting `json:"privacy_setting,omitempty"`
 	// Transactions holds the value of the transactions edge.
 	Transactions []*Transaction `json:"transactions,omitempty"`
+	// User2fa holds the value of the user_2fa edge.
+	User2fa *User2fa `json:"user_2fa,omitempty"`
 	// UserProfile holds the value of the user_profile edge.
 	UserProfile *UserProfile `json:"user_profile,omitempty"`
 	// UserSessions holds the value of the user_sessions edge.
 	UserSessions []*UserSession `json:"user_sessions,omitempty"`
 	// UserTokens holds the value of the user_tokens edge.
 	UserTokens []*UserToken `json:"user_tokens,omitempty"`
-	// User2fa holds the value of the user_2fa edge.
-	User2fa *User2fa `json:"user_2fa,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [10]bool
@@ -142,12 +142,23 @@ func (e UserEdges) TransactionsOrErr() ([]*Transaction, error) {
 	return nil, &NotLoadedError{edge: "transactions"}
 }
 
+// User2faOrErr returns the User2fa value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) User2faOrErr() (*User2fa, error) {
+	if e.User2fa != nil {
+		return e.User2fa, nil
+	} else if e.loadedTypes[6] {
+		return nil, &NotFoundError{label: user2fa.Label}
+	}
+	return nil, &NotLoadedError{edge: "user_2fa"}
+}
+
 // UserProfileOrErr returns the UserProfile value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) UserProfileOrErr() (*UserProfile, error) {
 	if e.UserProfile != nil {
 		return e.UserProfile, nil
-	} else if e.loadedTypes[6] {
+	} else if e.loadedTypes[7] {
 		return nil, &NotFoundError{label: userprofile.Label}
 	}
 	return nil, &NotLoadedError{edge: "user_profile"}
@@ -156,7 +167,7 @@ func (e UserEdges) UserProfileOrErr() (*UserProfile, error) {
 // UserSessionsOrErr returns the UserSessions value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserSessionsOrErr() ([]*UserSession, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.UserSessions, nil
 	}
 	return nil, &NotLoadedError{edge: "user_sessions"}
@@ -165,21 +176,10 @@ func (e UserEdges) UserSessionsOrErr() ([]*UserSession, error) {
 // UserTokensOrErr returns the UserTokens value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) UserTokensOrErr() ([]*UserToken, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[9] {
 		return e.UserTokens, nil
 	}
 	return nil, &NotLoadedError{edge: "user_tokens"}
-}
-
-// User2faOrErr returns the User2fa value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e UserEdges) User2faOrErr() (*User2fa, error) {
-	if e.User2fa != nil {
-		return e.User2fa, nil
-	} else if e.loadedTypes[9] {
-		return nil, &NotFoundError{label: user2fa.Label}
-	}
-	return nil, &NotLoadedError{edge: "user_2fa"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -347,6 +347,11 @@ func (u *User) QueryTransactions() *TransactionQuery {
 	return NewUserClient(u.config).QueryTransactions(u)
 }
 
+// QueryUser2fa queries the "user_2fa" edge of the User entity.
+func (u *User) QueryUser2fa() *User2faQuery {
+	return NewUserClient(u.config).QueryUser2fa(u)
+}
+
 // QueryUserProfile queries the "user_profile" edge of the User entity.
 func (u *User) QueryUserProfile() *UserProfileQuery {
 	return NewUserClient(u.config).QueryUserProfile(u)
@@ -360,11 +365,6 @@ func (u *User) QueryUserSessions() *UserSessionQuery {
 // QueryUserTokens queries the "user_tokens" edge of the User entity.
 func (u *User) QueryUserTokens() *UserTokenQuery {
 	return NewUserClient(u.config).QueryUserTokens(u)
-}
-
-// QueryUser2fa queries the "user_2fa" edge of the User entity.
-func (u *User) QueryUser2fa() *User2faQuery {
-	return NewUserClient(u.config).QueryUser2fa(u)
 }
 
 // Update returns a builder for updating this User.

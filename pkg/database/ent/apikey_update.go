@@ -3,6 +3,9 @@
 package ent
 
 import (
+	"app/pkg/database/ent/apikey"
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/user"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,9 +16,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/apikey"
-	"app/pkg/database/ent/predicate"
-	"app/pkg/database/ent/user"
 )
 
 // ApiKeyUpdate is the builder for updating ApiKey entities.

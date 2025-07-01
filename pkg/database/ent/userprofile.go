@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/userprofile"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/userprofile"
 )
 
 // UserProfile is the model entity for the UserProfile schema.

@@ -28,6 +28,10 @@ var (
 	GoogleClientID      string
 	GoogleClientSecret  string
 	RedirectURL         string
+	RedisHost           string
+	RedisPort           int
+	RedisPassword       string
+	RedisDB             int
 )
 
 func init() {
@@ -44,6 +48,12 @@ func init() {
 	DBPassword = viper.GetString("DB_PASSWORD")
 	DBName = viper.GetString("DB_NAME")
 	DBPort = viper.GetInt("DB_PORT")
+
+	// redis configuration
+	RedisHost = viper.GetString("REDIS_HOST")
+	RedisPort = viper.GetInt("REDIS_PORT")
+	RedisPassword = viper.GetString("REDIS_PASSWORD")
+	RedisDB = viper.GetInt("REDIS_DB")
 
 	// jwt configuration
 	JWTSecret = viper.GetString("JWT_SECRET")

@@ -3,11 +3,11 @@
 package user
 
 import (
+	"app/pkg/database/ent/predicate"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"app/pkg/database/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -1078,6 +1078,29 @@ func HasTransactionsWith(preds ...predicate.Transaction) predicate.User {
 	})
 }
 
+// HasUser2fa applies the HasEdge predicate on the "user_2fa" edge.
+func HasUser2fa() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, User2faTable, User2faColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUser2faWith applies the HasEdge predicate on the "user_2fa" edge with a given conditions (other predicates).
+func HasUser2faWith(preds ...predicate.User2fa) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newUser2faStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasUserProfile applies the HasEdge predicate on the "user_profile" edge.
 func HasUserProfile() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -1139,29 +1162,6 @@ func HasUserTokens() predicate.User {
 func HasUserTokensWith(preds ...predicate.UserToken) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newUserTokensStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasUser2fa applies the HasEdge predicate on the "user_2fa" edge.
-func HasUser2fa() predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, User2faTable, User2faColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasUser2faWith applies the HasEdge predicate on the "user_2fa" edge with a given conditions (other predicates).
-func HasUser2faWith(preds ...predicate.User2fa) predicate.User {
-	return predicate.User(func(s *sql.Selector) {
-		step := newUser2faStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/usertoken"
 	"context"
 	"errors"
 	"fmt"
@@ -10,8 +12,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/usertoken"
 )
 
 // UserTokenCreate is the builder for creating a UserToken entity.

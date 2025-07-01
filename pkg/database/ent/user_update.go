@@ -3,14 +3,6 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"time"
-
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
 	"app/pkg/database/ent/activitylog"
 	"app/pkg/database/ent/apikey"
 	"app/pkg/database/ent/notificationsetting"
@@ -23,6 +15,14 @@ import (
 	"app/pkg/database/ent/userprofile"
 	"app/pkg/database/ent/usersession"
 	"app/pkg/database/ent/usertoken"
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 )
 
 // UserUpdate is the builder for updating User entities.
@@ -412,6 +412,25 @@ func (uu *UserUpdate) AddTransactions(t ...*Transaction) *UserUpdate {
 	return uu.AddTransactionIDs(ids...)
 }
 
+// SetUser2faID sets the "user_2fa" edge to the User2fa entity by ID.
+func (uu *UserUpdate) SetUser2faID(id string) *UserUpdate {
+	uu.mutation.SetUser2faID(id)
+	return uu
+}
+
+// SetNillableUser2faID sets the "user_2fa" edge to the User2fa entity by ID if the given value is not nil.
+func (uu *UserUpdate) SetNillableUser2faID(id *string) *UserUpdate {
+	if id != nil {
+		uu = uu.SetUser2faID(*id)
+	}
+	return uu
+}
+
+// SetUser2fa sets the "user_2fa" edge to the User2fa entity.
+func (uu *UserUpdate) SetUser2fa(u *User2fa) *UserUpdate {
+	return uu.SetUser2faID(u.ID)
+}
+
 // SetUserProfileID sets the "user_profile" edge to the UserProfile entity by ID.
 func (uu *UserUpdate) SetUserProfileID(id string) *UserUpdate {
 	uu.mutation.SetUserProfileID(id)
@@ -459,25 +478,6 @@ func (uu *UserUpdate) AddUserTokens(u ...*UserToken) *UserUpdate {
 		ids[i] = u[i].ID
 	}
 	return uu.AddUserTokenIDs(ids...)
-}
-
-// SetUser2faID sets the "user_2fa" edge to the User2fa entity by ID.
-func (uu *UserUpdate) SetUser2faID(id string) *UserUpdate {
-	uu.mutation.SetUser2faID(id)
-	return uu
-}
-
-// SetNillableUser2faID sets the "user_2fa" edge to the User2fa entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableUser2faID(id *string) *UserUpdate {
-	if id != nil {
-		uu = uu.SetUser2faID(*id)
-	}
-	return uu
-}
-
-// SetUser2fa sets the "user_2fa" edge to the User2fa entity.
-func (uu *UserUpdate) SetUser2fa(u *User2fa) *UserUpdate {
-	return uu.SetUser2faID(u.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -581,6 +581,12 @@ func (uu *UserUpdate) RemoveTransactions(t ...*Transaction) *UserUpdate {
 	return uu.RemoveTransactionIDs(ids...)
 }
 
+// ClearUser2fa clears the "user_2fa" edge to the User2fa entity.
+func (uu *UserUpdate) ClearUser2fa() *UserUpdate {
+	uu.mutation.ClearUser2fa()
+	return uu
+}
+
 // ClearUserProfile clears the "user_profile" edge to the UserProfile entity.
 func (uu *UserUpdate) ClearUserProfile() *UserUpdate {
 	uu.mutation.ClearUserProfile()
@@ -627,12 +633,6 @@ func (uu *UserUpdate) RemoveUserTokens(u ...*UserToken) *UserUpdate {
 		ids[i] = u[i].ID
 	}
 	return uu.RemoveUserTokenIDs(ids...)
-}
-
-// ClearUser2fa clears the "user_2fa" edge to the User2fa entity.
-func (uu *UserUpdate) ClearUser2fa() *UserUpdate {
-	uu.mutation.ClearUser2fa()
-	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -1000,6 +1000,35 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.User2faCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.User2faTable,
+			Columns: []string{user.User2faColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.User2faIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.User2faTable,
+			Columns: []string{user.User2faColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if uu.mutation.UserProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -1112,35 +1141,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usertoken.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uu.mutation.User2faCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.User2faTable,
-			Columns: []string{user.User2faColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uu.mutation.User2faIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.User2faTable,
-			Columns: []string{user.User2faColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -1542,6 +1542,25 @@ func (uuo *UserUpdateOne) AddTransactions(t ...*Transaction) *UserUpdateOne {
 	return uuo.AddTransactionIDs(ids...)
 }
 
+// SetUser2faID sets the "user_2fa" edge to the User2fa entity by ID.
+func (uuo *UserUpdateOne) SetUser2faID(id string) *UserUpdateOne {
+	uuo.mutation.SetUser2faID(id)
+	return uuo
+}
+
+// SetNillableUser2faID sets the "user_2fa" edge to the User2fa entity by ID if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableUser2faID(id *string) *UserUpdateOne {
+	if id != nil {
+		uuo = uuo.SetUser2faID(*id)
+	}
+	return uuo
+}
+
+// SetUser2fa sets the "user_2fa" edge to the User2fa entity.
+func (uuo *UserUpdateOne) SetUser2fa(u *User2fa) *UserUpdateOne {
+	return uuo.SetUser2faID(u.ID)
+}
+
 // SetUserProfileID sets the "user_profile" edge to the UserProfile entity by ID.
 func (uuo *UserUpdateOne) SetUserProfileID(id string) *UserUpdateOne {
 	uuo.mutation.SetUserProfileID(id)
@@ -1589,25 +1608,6 @@ func (uuo *UserUpdateOne) AddUserTokens(u ...*UserToken) *UserUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return uuo.AddUserTokenIDs(ids...)
-}
-
-// SetUser2faID sets the "user_2fa" edge to the User2fa entity by ID.
-func (uuo *UserUpdateOne) SetUser2faID(id string) *UserUpdateOne {
-	uuo.mutation.SetUser2faID(id)
-	return uuo
-}
-
-// SetNillableUser2faID sets the "user_2fa" edge to the User2fa entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableUser2faID(id *string) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetUser2faID(*id)
-	}
-	return uuo
-}
-
-// SetUser2fa sets the "user_2fa" edge to the User2fa entity.
-func (uuo *UserUpdateOne) SetUser2fa(u *User2fa) *UserUpdateOne {
-	return uuo.SetUser2faID(u.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -1711,6 +1711,12 @@ func (uuo *UserUpdateOne) RemoveTransactions(t ...*Transaction) *UserUpdateOne {
 	return uuo.RemoveTransactionIDs(ids...)
 }
 
+// ClearUser2fa clears the "user_2fa" edge to the User2fa entity.
+func (uuo *UserUpdateOne) ClearUser2fa() *UserUpdateOne {
+	uuo.mutation.ClearUser2fa()
+	return uuo
+}
+
 // ClearUserProfile clears the "user_profile" edge to the UserProfile entity.
 func (uuo *UserUpdateOne) ClearUserProfile() *UserUpdateOne {
 	uuo.mutation.ClearUserProfile()
@@ -1757,12 +1763,6 @@ func (uuo *UserUpdateOne) RemoveUserTokens(u ...*UserToken) *UserUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return uuo.RemoveUserTokenIDs(ids...)
-}
-
-// ClearUser2fa clears the "user_2fa" edge to the User2fa entity.
-func (uuo *UserUpdateOne) ClearUser2fa() *UserUpdateOne {
-	uuo.mutation.ClearUser2fa()
-	return uuo
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -2160,6 +2160,35 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uuo.mutation.User2faCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.User2faTable,
+			Columns: []string{user.User2faColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.User2faIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   user.User2faTable,
+			Columns: []string{user.User2faColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if uuo.mutation.UserProfileCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
@@ -2272,35 +2301,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(usertoken.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if uuo.mutation.User2faCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.User2faTable,
-			Columns: []string{user.User2faColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := uuo.mutation.User2faIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
-			Table:   user.User2faTable,
-			Columns: []string{user.User2faColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user2fa.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

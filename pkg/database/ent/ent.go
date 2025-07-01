@@ -3,15 +3,6 @@
 package ent
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"reflect"
-	"sync"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 	"app/pkg/database/ent/activitylog"
 	"app/pkg/database/ent/apikey"
 	"app/pkg/database/ent/notificationsetting"
@@ -23,6 +14,15 @@ import (
 	"app/pkg/database/ent/userprofile"
 	"app/pkg/database/ent/usersession"
 	"app/pkg/database/ent/usertoken"
+	"context"
+	"errors"
+	"fmt"
+	"reflect"
+	"sync"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ent aliases to avoid import conflicts in user's code.

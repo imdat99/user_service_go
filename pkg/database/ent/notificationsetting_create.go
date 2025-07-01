@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/notificationsetting"
+	"app/pkg/database/ent/user"
 	"context"
 	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/notificationsetting"
-	"app/pkg/database/ent/user"
 )
 
 // NotificationSettingCreate is the builder for creating a NotificationSetting entity.

@@ -3,13 +3,13 @@
 package ent
 
 import (
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/transaction"
 	"context"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/predicate"
-	"app/pkg/database/ent/transaction"
 )
 
 // TransactionDelete is the builder for deleting a Transaction entity.

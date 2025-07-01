@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/privacysetting"
+	"app/pkg/database/ent/user"
 	"context"
 	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/privacysetting"
-	"app/pkg/database/ent/user"
 )
 
 // PrivacySettingCreate is the builder for creating a PrivacySetting entity.

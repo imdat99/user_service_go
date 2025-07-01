@@ -3,13 +3,13 @@
 package ent
 
 import (
+	"app/pkg/database/ent/activitylog"
+	"app/pkg/database/ent/predicate"
 	"context"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/activitylog"
-	"app/pkg/database/ent/predicate"
 )
 
 // ActivityLogDelete is the builder for deleting a ActivityLog entity.

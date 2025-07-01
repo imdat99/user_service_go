@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/userprofile"
 	"context"
 	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/userprofile"
 )
 
 // UserProfileCreate is the builder for creating a UserProfile entity.

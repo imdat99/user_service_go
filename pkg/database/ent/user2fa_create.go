@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/user2fa"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,8 +12,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/user2fa"
 )
 
 // User2faCreate is the builder for creating a User2fa entity.

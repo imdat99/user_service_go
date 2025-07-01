@@ -3,13 +3,13 @@
 package ent
 
 import (
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/usersession"
 	"context"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/predicate"
-	"app/pkg/database/ent/usersession"
 )
 
 // UserSessionDelete is the builder for deleting a UserSession entity.

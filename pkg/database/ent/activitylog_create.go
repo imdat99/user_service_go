@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"app/pkg/database/ent/activitylog"
+	"app/pkg/database/ent/user"
 	"context"
 	"encoding/json"
 	"errors"
@@ -11,8 +13,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/activitylog"
-	"app/pkg/database/ent/user"
 )
 
 // ActivityLogCreate is the builder for creating a ActivityLog entity.

@@ -1,5 +1,7 @@
 package responses
 
+import "github.com/gofiber/fiber/v2"
+
 type Common struct {
 	Code    int    `json:"code"`
 	Status  string `json:"status"`
@@ -13,13 +15,13 @@ type Common struct {
 // 	User    model.User `json:"user"`
 // }
 
-// type SuccessWithTokens struct {
-// 	Code    int        `json:"code"`
-// 	Status  string     `json:"status"`
-// 	Message string     `json:"message"`
-// 	User    model.User `json:"user"`
-// 	Tokens  Tokens     `json:"tokens"`
-// }
+type SuccessWithTokens struct {
+	Code    int    `json:"code"`
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	// User    model.User `json:"user"`
+	Tokens Tokens `json:"tokens"`
+}
 
 type SuccessWithPaginate[T any] struct {
 	Code         int    `json:"code"`
@@ -37,4 +39,26 @@ type ErrorDetails struct {
 	Status  string      `json:"status"`
 	Message string      `json:"message"`
 	Errors  interface{} `json:"errors"`
+}
+type responseWithData[T any] struct {
+	Code    int    `json:"code"`
+	Status  string `json:"status"`
+	Message string `json:"message,omitempty"`
+	Data    T      `json:"data,omitempty"`
+}
+
+const (
+	SuccessCode   = 200
+	ErrorCode     = 500
+	SuccessStatus = "success"
+	ErrorStatus   = "error"
+)
+
+func Ok[T any](c *fiber.Ctx, message string, data T) error {
+	return c.Status(SuccessCode).JSON(responseWithData[T]{
+		Code:    SuccessCode,
+		Status:  SuccessStatus,
+		Message: message,
+		Data:    data,
+	})
 }

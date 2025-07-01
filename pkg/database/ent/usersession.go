@@ -3,14 +3,14 @@
 package ent
 
 import (
+	"app/pkg/database/ent/user"
+	"app/pkg/database/ent/usersession"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"app/pkg/database/ent/user"
-	"app/pkg/database/ent/usersession"
 )
 
 // UserSession is the model entity for the UserSession schema.

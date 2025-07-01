@@ -3,10 +3,9 @@
 package hook
 
 import (
+	"app/pkg/database/ent"
 	"context"
 	"fmt"
-
-	"app/pkg/database/ent"
 )
 
 // The ActivityLogFunc type is an adapter to allow the use of ordinary

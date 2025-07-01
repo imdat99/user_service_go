@@ -2,43 +2,23 @@ package main
 
 import (
 	"app/internal/config"
+	m "app/internal/middleware"
 	"app/internal/router"
 	"app/internal/utils"
-	"app/pkg/database/ent"
 	"context"
-	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"entgo.io/ent/dialect"
-	esql "entgo.io/ent/dialect/sql"
+	db "app/pkg/database"
+
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-func NewClient() (*ent.Client, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
-		config.DBUser, config.DBPassword, config.DBHost, config.DBPort, config.DBName)
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Tối ưu connection pool
-	db.SetMaxOpenConns(25)                 // Max connections
-	db.SetMaxIdleConns(10)                 // Max idle connections
-	db.SetConnMaxLifetime(5 * time.Minute) // Connection lifetime
-	db.SetConnMaxIdleTime(2 * time.Minute) // Idle timeout
-
-	drv := esql.OpenDB(dialect.MySQL, db)
-	return ent.NewClient(ent.Driver(drv)), err
-}
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -46,27 +26,38 @@ func main() {
 	app := fiber.New(config.FiberConfig())
 	app.Use(cors.New())
 	app.Use(logger.New())
+	app.Use(m.RecoverConfig())
 	// Initialize database client
-	client, err := NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer client.Close()
+	client := db.DBConnect()
+	//defer func(Ent *ent.Client) {
+	//	err := Ent.Close()
+	//	if err != nil {
+	//
+	//	}
+	//}(client.Ent)
+	defer func(client *db.DBClient) {
+		if err := client.Ent.Close(); err != nil {
+			utils.Log.Errorf("Error closing Ent connection: %v", err)
+		}
+		if err := client.Redis.Close(); err != nil {
+			utils.Log.Errorf("Error closing Redis connection: %v", err)
+		}
+	}(client)
 	// Middleware
 	router.SetupRoutes(app, client, ctx)
 	app.Use(utils.NotFoundHandler)
 	// Routes
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// app.Get("/", func(c *fiber.Ctx) error {
+	// 	return c.SendString("Hello, World!")
+	// })
 
 	// Start server
-	// if err := app.Listen(":3000"); err != nil {
-	// 	panic(err)
-	// }
-	serverErrors := make(chan error, 1)
-	go startServer(app, ":3000", serverErrors)
-	handleGracefulShutdown(ctx, app, serverErrors) // Graceful shutdown, not recommended for Development
+	if err := app.Listen(":3000"); err != nil {
+		panic(err)
+	}
+	// serverErrors := make(chan error, 1)
+	// go startServer(app, ":3000", serverErrors)
+	// handleGracefulShutdown(ctx, app, serverErrors) // Graceful shutdown, not recommended for Development
 }
 
 func startServer(app *fiber.App, address string, errs chan<- error) {

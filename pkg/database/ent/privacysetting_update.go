@@ -3,6 +3,9 @@
 package ent
 
 import (
+	"app/pkg/database/ent/predicate"
+	"app/pkg/database/ent/privacysetting"
+	"app/pkg/database/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -11,9 +14,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"app/pkg/database/ent/predicate"
-	"app/pkg/database/ent/privacysetting"
-	"app/pkg/database/ent/user"
 )
 
 // PrivacySettingUpdate is the builder for updating PrivacySetting entities.

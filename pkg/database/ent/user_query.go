@@ -3,15 +3,6 @@
 package ent
 
 import (
-	"context"
-	"database/sql/driver"
-	"fmt"
-	"math"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/schema/field"
 	"app/pkg/database/ent/activitylog"
 	"app/pkg/database/ent/apikey"
 	"app/pkg/database/ent/notificationsetting"
@@ -24,6 +15,15 @@ import (
 	"app/pkg/database/ent/userprofile"
 	"app/pkg/database/ent/usersession"
 	"app/pkg/database/ent/usertoken"
+	"context"
+	"database/sql/driver"
+	"fmt"
+	"math"
+
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"entgo.io/ent/schema/field"
 )
 
 // UserQuery is the builder for querying User entities.
@@ -39,10 +39,10 @@ type UserQuery struct {
 	withPaymentMethods      *PaymentMethodQuery
 	withPrivacySetting      *PrivacySettingQuery
 	withTransactions        *TransactionQuery
+	withUser2fa             *User2faQuery
 	withUserProfile         *UserProfileQuery
 	withUserSessions        *UserSessionQuery
 	withUserTokens          *UserTokenQuery
-	withUser2fa             *User2faQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -211,6 +211,28 @@ func (uq *UserQuery) QueryTransactions() *TransactionQuery {
 	return query
 }
 
+// QueryUser2fa chains the current query on the "user_2fa" edge.
+func (uq *UserQuery) QueryUser2fa() *User2faQuery {
+	query := (&User2faClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(user2fa.Table, user2fa.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, user.User2faTable, user.User2faColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryUserProfile chains the current query on the "user_profile" edge.
 func (uq *UserQuery) QueryUserProfile() *UserProfileQuery {
 	query := (&UserProfileClient{config: uq.config}).Query()
@@ -270,28 +292,6 @@ func (uq *UserQuery) QueryUserTokens() *UserTokenQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(usertoken.Table, usertoken.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UserTokensTable, user.UserTokensColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryUser2fa chains the current query on the "user_2fa" edge.
-func (uq *UserQuery) QueryUser2fa() *User2faQuery {
-	query := (&User2faClient{config: uq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := uq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := uq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(user2fa.Table, user2fa.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, user.User2faTable, user.User2faColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -497,10 +497,10 @@ func (uq *UserQuery) Clone() *UserQuery {
 		withPaymentMethods:      uq.withPaymentMethods.Clone(),
 		withPrivacySetting:      uq.withPrivacySetting.Clone(),
 		withTransactions:        uq.withTransactions.Clone(),
+		withUser2fa:             uq.withUser2fa.Clone(),
 		withUserProfile:         uq.withUserProfile.Clone(),
 		withUserSessions:        uq.withUserSessions.Clone(),
 		withUserTokens:          uq.withUserTokens.Clone(),
-		withUser2fa:             uq.withUser2fa.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -573,6 +573,17 @@ func (uq *UserQuery) WithTransactions(opts ...func(*TransactionQuery)) *UserQuer
 	return uq
 }
 
+// WithUser2fa tells the query-builder to eager-load the nodes that are connected to
+// the "user_2fa" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithUser2fa(opts ...func(*User2faQuery)) *UserQuery {
+	query := (&User2faClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withUser2fa = query
+	return uq
+}
+
 // WithUserProfile tells the query-builder to eager-load the nodes that are connected to
 // the "user_profile" edge. The optional arguments are used to configure the query builder of the edge.
 func (uq *UserQuery) WithUserProfile(opts ...func(*UserProfileQuery)) *UserQuery {
@@ -603,17 +614,6 @@ func (uq *UserQuery) WithUserTokens(opts ...func(*UserTokenQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withUserTokens = query
-	return uq
-}
-
-// WithUser2fa tells the query-builder to eager-load the nodes that are connected to
-// the "user_2fa" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithUser2fa(opts ...func(*User2faQuery)) *UserQuery {
-	query := (&User2faClient{config: uq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	uq.withUser2fa = query
 	return uq
 }
 
@@ -702,10 +702,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			uq.withPaymentMethods != nil,
 			uq.withPrivacySetting != nil,
 			uq.withTransactions != nil,
+			uq.withUser2fa != nil,
 			uq.withUserProfile != nil,
 			uq.withUserSessions != nil,
 			uq.withUserTokens != nil,
-			uq.withUser2fa != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -766,6 +766,12 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			return nil, err
 		}
 	}
+	if query := uq.withUser2fa; query != nil {
+		if err := uq.loadUser2fa(ctx, query, nodes, nil,
+			func(n *User, e *User2fa) { n.Edges.User2fa = e }); err != nil {
+			return nil, err
+		}
+	}
 	if query := uq.withUserProfile; query != nil {
 		if err := uq.loadUserProfile(ctx, query, nodes, nil,
 			func(n *User, e *UserProfile) { n.Edges.UserProfile = e }); err != nil {
@@ -783,12 +789,6 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadUserTokens(ctx, query, nodes,
 			func(n *User) { n.Edges.UserTokens = []*UserToken{} },
 			func(n *User, e *UserToken) { n.Edges.UserTokens = append(n.Edges.UserTokens, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := uq.withUser2fa; query != nil {
-		if err := uq.loadUser2fa(ctx, query, nodes, nil,
-			func(n *User, e *User2fa) { n.Edges.User2fa = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -969,6 +969,33 @@ func (uq *UserQuery) loadTransactions(ctx context.Context, query *TransactionQue
 	}
 	return nil
 }
+func (uq *UserQuery) loadUser2fa(ctx context.Context, query *User2faQuery, nodes []*User, init func(*User), assign func(*User, *User2fa)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(user2fa.FieldUserID)
+	}
+	query.Where(predicate.User2fa(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.User2faColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (uq *UserQuery) loadUserProfile(ctx context.Context, query *UserProfileQuery, nodes []*User, init func(*User), assign func(*User, *UserProfile)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*User)
@@ -1041,33 +1068,6 @@ func (uq *UserQuery) loadUserTokens(ctx context.Context, query *UserTokenQuery, 
 	}
 	query.Where(predicate.UserToken(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.UserTokensColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.UserID
-		node, ok := nodeids[fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (uq *UserQuery) loadUser2fa(ctx context.Context, query *User2faQuery, nodes []*User, init func(*User), assign func(*User, *User2fa)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*User)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(user2fa.FieldUserID)
-	}
-	query.Where(predicate.User2fa(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(user.User2faColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
