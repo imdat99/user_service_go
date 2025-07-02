@@ -8,6 +8,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type AuthHandler interface {
+	Login(c *fiber.Ctx) error
+	Register(c *fiber.Ctx) error
+	RefreshTokens(c *fiber.Ctx) error
+}
 type authHandler struct {
 	AuthService  s.AuthService
 	UserService  s.UserService
@@ -15,12 +20,7 @@ type authHandler struct {
 	// EmailService s.EmailService
 }
 
-func NewAuthHandler(
-	authService s.AuthService,
-	userService s.UserService,
-	tokenService s.TokenService,
-	// emailService s.EmailService,
-) *authHandler {
+func NewAuthHandler(authService s.AuthService, userService s.UserService, tokenService s.TokenService) AuthHandler {
 	return &authHandler{
 		AuthService:  authService,
 		UserService:  userService,

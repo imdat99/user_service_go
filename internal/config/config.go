@@ -36,7 +36,7 @@ var (
 
 func init() {
 	loadConfig()
-
+	utils.Log.Infof("Loading configuration...")
 	// server configuration
 	IsProd = viper.GetString("APP_ENV") == "prod"
 	AppHost = viper.GetString("APP_HOST")
@@ -76,19 +76,20 @@ func init() {
 }
 
 func loadConfig() {
-	configPaths := []string{
-		"./",     // For app
-		"../../", // For test folder
-	}
+	viper.AutomaticEnv()
+	// configPaths := []string{
+	// 	"./",     // For app
+	// 	"../../", // For test folder
+	// }
 
-	for _, path := range configPaths {
-		viper.SetConfigFile(path + ".env")
+	// for _, path := range configPaths {
+	// 	viper.SetConfigFile(path + ".env")
 
-		if err := viper.ReadInConfig(); err == nil {
-			utils.Log.Infof("Config file loaded from %s", path)
-			return
-		}
-	}
+	// 	if err := viper.ReadInConfig(); err == nil {
+	// 		utils.Log.Infof("Config file loaded from %s", path)
+	// 		return
+	// 	}
+	// }
 
-	utils.Log.Error("Failed to load any config file")
+	// utils.Log.Error("Failed to load any config file")
 }

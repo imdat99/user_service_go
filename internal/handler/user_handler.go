@@ -8,11 +8,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+type UserHandler interface {
+	MyInfo(c *fiber.Ctx) error
+}
 type userHandler struct {
 	UserService services.UserService
 }
 
-func NewUserHandler(userService services.UserService) *userHandler {
+func NewUserHandler(userService services.UserService) UserHandler {
 	return &userHandler{
 		UserService: userService,
 	}

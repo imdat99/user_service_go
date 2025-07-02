@@ -5,6 +5,7 @@ import (
 	m "app/internal/middleware"
 	"app/internal/router"
 	"app/internal/utils"
+	"app/pkg/database/ent"
 	"context"
 	"fmt"
 	"os"
@@ -29,12 +30,12 @@ func main() {
 	app.Use(m.RecoverConfig())
 	// Initialize database client
 	client := db.DBConnect()
-	//defer func(Ent *ent.Client) {
-	//	err := Ent.Close()
-	//	if err != nil {
-	//
-	//	}
-	//}(client.Ent)
+	defer func(Ent *ent.Client) {
+		err := Ent.Close()
+		if err != nil {
+
+		}
+	}(client.Ent)
 	defer func(client *db.DBClient) {
 		if err := client.Ent.Close(); err != nil {
 			utils.Log.Errorf("Error closing Ent connection: %v", err)
@@ -52,12 +53,17 @@ func main() {
 	// })
 
 	// Start server
-	if err := app.Listen(":3000"); err != nil {
-		panic(err)
+	if config.IsProd {
+		serverErrors := make(chan error, 1)
+		go startServer(app, fmt.Sprintf("%s:%d", config.AppHost, config.AppPort), serverErrors)
+		handleGracefulShutdown(ctx, app, serverErrors) // Graceful shutdown, not recommended for Development
+	} else {
+		utils.Log.Info("Starting server in development mode...")
+		if err := app.Listen(fmt.Sprintf("%s:%d", config.AppHost, config.AppPort)); err != nil {
+			panic(err)
+		}
 	}
-	// serverErrors := make(chan error, 1)
-	// go startServer(app, ":3000", serverErrors)
-	// handleGracefulShutdown(ctx, app, serverErrors) // Graceful shutdown, not recommended for Development
+
 }
 
 func startServer(app *fiber.App, address string, errs chan<- error) {
