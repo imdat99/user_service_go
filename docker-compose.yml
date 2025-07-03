@@ -9,6 +9,7 @@ services:
     ports:
       - "8080:8080"
     pid: "host"
+    restart: unless-stopped
     environment:
       GO_ENV: production
       APP_ENV: prod
@@ -37,4 +38,4 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       REDIRECT_URL: ${REDIRECT_URL}
-    restart: unless-stopped
+    

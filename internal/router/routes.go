@@ -1,6 +1,7 @@
 package router
 
 import (
+	"app/internal/config"
 	rv1 "app/internal/router/v1"
 	"app/internal/services"
 	"app/internal/validation"
@@ -23,4 +24,7 @@ func SetupRoutes(app *fiber.App, db *database.DBClient, ctx context.Context) {
 	HealthCheckRoutes(api, healthCheckService)
 	rv1.AuthRoutes(v1, authService, userService, tokenService)
 	rv1.UserRoutes(v1, userService)
+	if !config.IsProd {
+		SwaggerRoutes(api)
+	}
 }
